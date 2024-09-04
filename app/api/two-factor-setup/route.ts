@@ -1,17 +1,40 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
 export async function POST(request: Request) {
-  const { verificationCode, method } = await request.json();
+  const { email, password, verificationCode, method } = await request.json();
 
-  // TODO: Implement 2FA setup logic (e.g., verify the code with the backend)
-  // This is where you'd interact with your database or external 2FA service
+  try {
+    // Sign up the user with Supabase
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          two_factor_method: method,
+          // You can add more custom user metadata here
+        }
+      }
+    });
 
-  // Simulating a successful setup
-  const success = true;
+    if (error) {
+      throw error;
+    }
 
-  if (success) {
-    return NextResponse.json({ message: '2FA setup successful' }, { status: 200 });
-  } else {
-    return NextResponse.json({ message: '2FA setup failed' }, { status: 400 });
+    // TODO: Implement 2FA setup logic (e.g., verify the code with the backend)
+    // This is where you'd interact with your database or external 2FA service
+
+    // Simulating a successful setup
+    const success = true;
+
+    if (success) {
+      return NextResponse.json({ message: '2FA setup successful', user: data.user }, { status: 200 });
+    } else {
+      return NextResponse.json({ message: '2FA setup failed' }, { status: 400 });
+    }
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message || '2FA setup failed' }, { status: 400 });
   }
 }
