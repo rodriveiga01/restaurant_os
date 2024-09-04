@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { AccountDetails, AccountValidator } from "./accountUtils";
-import { TextFieldProps, TextField, TermsCheckbox, CreateAccountButton } from "./components";
+import { TextFieldProps, TextField, TermsCheckbox, CreateAccountButton, TwoFactorOptions } from "./components";
+import TwoFactorSetup from "./two-factor-setup/TwoFactorSetupClient";
 
 function CreateAccountPage() {
     const [accountDetails, setAccountDetails] = useState<AccountDetails>({
@@ -9,10 +10,13 @@ function CreateAccountPage() {
         email: '',
         password: '',
         confirmPassword: '',
-        termsAccepted: false
+        termsAccepted: false,
+        twoFactorEnabled: false,
+        twoFactorMethod: null
     });
+    const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 
-    const updateAccountDetails = (field: keyof AccountDetails, value: string | boolean) => {
+    const updateAccountDetails = (field: keyof AccountDetails, value: string | boolean | '2fa_app' | 'sms' | null) => {
         setAccountDetails((prev: any) => ({ ...prev, [field]: value }));
     };
 
@@ -20,7 +24,12 @@ function CreateAccountPage() {
         const validator = new AccountValidator();
         const validationResult = validator.validateAccountDetails(accountDetails);
         if (validationResult.isValid) {
-            // Proceed with account creation
+            if (accountDetails.twoFactorEnabled) {
+                setShowTwoFactorSetup(true);
+            } else {
+                // Proceed with account creation without 2FA
+                // TODO: Implement account creation logic
+            }
         } else {
             alert(validationResult.errorMessage);
         }
@@ -48,6 +57,12 @@ function CreateAccountPage() {
                             <div>
                                 <label htmlFor="password" className="block mb-2 text-sm text-gray-400">At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character</label>
                             </div>
+                            <TwoFactorOptions
+                                enabled={accountDetails.twoFactorEnabled}
+                                method={accountDetails.twoFactorMethod}
+                                onEnabledChange={(value) => updateAccountDetails('twoFactorEnabled', value)}
+                                onMethodChange={(value) => updateAccountDetails('twoFactorMethod', value)}
+                            />
                             <TermsCheckbox
                                 checked={accountDetails.termsAccepted}
                                 onChange={(value: string | boolean) => updateAccountDetails('termsAccepted', value)}
@@ -57,8 +72,10 @@ function CreateAccountPage() {
                     </div>
                 </div>
             </div>
+            {showTwoFactorSetup && accountDetails.twoFactorMethod && (
+                <TwoFactorSetup
+                    method={accountDetails.twoFactorMethod} qrCodeUrl={""}                />
+            )}
         </section>
     )
-}
-
-export default CreateAccountPage
+}export default CreateAccountPage
