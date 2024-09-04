@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AccountDetails, AccountValidator } from "./accountUtils";
-import { TextFieldProps, TextField, TermsCheckbox, CreateAccountButton, TwoFactorOptions } from "./components";
-import TwoFactorSetup from "./two-factor-setup/TwoFactorSetupClient";
+import { TextFieldProps, TextField, TermsCheckbox, CreateAccountButton, AlertDestructive } from "./components";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
 
 function CreateAccountPage() {
     const [accountDetails, setAccountDetails] = useState<AccountDetails>({
@@ -10,13 +11,10 @@ function CreateAccountPage() {
         email: '',
         password: '',
         confirmPassword: '',
-        termsAccepted: false,
-        twoFactorEnabled: false,
-        twoFactorMethod: null
+        termsAccepted: false
     });
-    const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 
-    const updateAccountDetails = (field: keyof AccountDetails, value: string | boolean | '2fa_app' | 'sms' | null) => {
+    const updateAccountDetails = (field: keyof AccountDetails, value: string | boolean) => {
         setAccountDetails((prev: any) => ({ ...prev, [field]: value }));
     };
 
@@ -24,16 +22,24 @@ function CreateAccountPage() {
         const validator = new AccountValidator();
         const validationResult = validator.validateAccountDetails(accountDetails);
         if (validationResult.isValid) {
-            if (accountDetails.twoFactorEnabled) {
-                setShowTwoFactorSetup(true);
-            } else {
-                // Proceed with account creation without 2FA
-                // TODO: Implement account creation logic
-            }
+            // Proceed with account creation
+            // TODO: Implement account creation logic
         } else {
-            alert(validationResult.errorMessage);
+            setErrorMessage(validationResult.errorMessage);
         }
     };
+
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (errorMessage) {
+            const timer = setTimeout(() => {
+                setErrorMessage(null);
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [errorMessage]);
 
     const textFields: TextFieldProps[] = [
         { label: "Name", type: "text", value: accountDetails.name, setValue: (value: string | boolean) => updateAccountDetails('name', value) },
@@ -43,7 +49,8 @@ function CreateAccountPage() {
     ];
 
     return (
-        <section className="bg-gray-900">
+        <section className="bg-gray-900 p-5">
+            {errorMessage && <AlertDestructive message={errorMessage} />}
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
                 <div className="w-full bg-gray-800 rounded-lg shadow border border-gray-700 md:mt-0 sm:max-w-md xl:p-0">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -57,12 +64,6 @@ function CreateAccountPage() {
                             <div>
                                 <label htmlFor="password" className="block mb-2 text-sm text-gray-400">At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character</label>
                             </div>
-                            <TwoFactorOptions
-                                enabled={accountDetails.twoFactorEnabled}
-                                method={accountDetails.twoFactorMethod}
-                                onEnabledChange={(value) => updateAccountDetails('twoFactorEnabled', value)}
-                                onMethodChange={(value) => updateAccountDetails('twoFactorMethod', value)}
-                            />
                             <TermsCheckbox
                                 checked={accountDetails.termsAccepted}
                                 onChange={(value: string | boolean) => updateAccountDetails('termsAccepted', value)}
@@ -72,10 +73,8 @@ function CreateAccountPage() {
                     </div>
                 </div>
             </div>
-            {showTwoFactorSetup && accountDetails.twoFactorMethod && (
-                <TwoFactorSetup
-                    method={accountDetails.twoFactorMethod} qrCodeUrl={""}                />
-            )}
         </section>
     )
-}export default CreateAccountPage
+} 
+
+export default CreateAccountPage
