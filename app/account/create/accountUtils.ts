@@ -4,8 +4,6 @@ export interface AccountDetails {
     password: string;
     confirmPassword: string;
     termsAccepted: boolean;
-    twoFactorEnabled: boolean;
-    twoFactorMethod: '2fa_app' | 'sms' | null;
 }
 
 export class AccountValidator {
@@ -28,10 +26,6 @@ export class AccountValidator {
         }
         if (!details.termsAccepted) {
             return { isValid: false, errorMessage: "You must accept the terms and conditions" };
-        }
-
-        if (details.twoFactorEnabled && !details.twoFactorMethod) {
-            return { isValid: false, errorMessage: "Please select a 2FA method" };
         }
 
         return { isValid: true, errorMessage: "" };

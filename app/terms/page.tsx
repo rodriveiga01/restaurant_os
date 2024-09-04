@@ -2,7 +2,7 @@ import React from 'react';
 
 function TermsAndConditions() {
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-900">
+    <div className=" px-4 py-8 bg-gray-900">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-100">Terms and Conditions</h1>
       <div className="prose max-w-none bg-gray-800 shadow-lg rounded-lg p-8">
         <h2 className="text-2xl font-semibold mb-4 text-gray-200">1. Acceptance of Terms</h2>
