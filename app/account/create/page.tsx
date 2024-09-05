@@ -1,9 +1,8 @@
-"use client";
-import { useEffect, useState } from "react";
-import { AccountDetails, AccountValidator } from "./accountUtils";
-import { TextFieldProps, TextField, TermsCheckbox, CreateAccountButton, AlertDestructive } from "./components";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
+"use client"
+import { useState } from "react"
+import { AccountDetails } from "./accountUtils"
+import { TextFieldProps, TextField, TermsCheckbox, CreateAccountButton, AlertDestructive } from "./components"
+import { createClient } from "@supabase/supabase-js"
 
 function CreateAccountPage() {
     const [accountDetails, setAccountDetails] = useState<AccountDetails>({
@@ -12,41 +11,37 @@ function CreateAccountPage() {
         password: '',
         confirmPassword: '',
         termsAccepted: false
-    });
+    })
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const updateAccountDetails = (field: keyof AccountDetails, value: string | boolean) => {
-        setAccountDetails((prev: any) => ({ ...prev, [field]: value }));
-    };
+        setAccountDetails(prev => ({ ...prev, [field]: value }))
+    }
 
-    const onCreateAccount = async () => {
-        const validator = new AccountValidator();
-        const validationResult = validator.validateAccountDetails(accountDetails);
-        if (validationResult.isValid) {
-            // Proceed with account creation
-            // TODO: Implement account creation logic
+    const createAccount = async () => {
+        const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+        const { data, error } = await supabase.auth.signUp({
+            email: accountDetails.email,
+            password: accountDetails.password,
+            options: {
+                data: {
+                    name: accountDetails.name,
+                }
+            }
+        })
+
+        if (error) {
+            setErrorMessage(error.message)
         } else {
-            setErrorMessage(validationResult.errorMessage);
+            console.log('Account created successfully')
         }
-    };
-
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (errorMessage) {
-            const timer = setTimeout(() => {
-                setErrorMessage(null);
-            }, 3000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [errorMessage]);
-
+    }   
     const textFields: TextFieldProps[] = [
-        { label: "Name", type: "text", value: accountDetails.name, setValue: (value: string | boolean) => updateAccountDetails('name', value) },
-        { label: "Email", type: "email", value: accountDetails.email, setValue: (value: string | boolean) => updateAccountDetails('email', value) },
-        { label: "Password", type: "password", value: accountDetails.password, setValue: (value: string | boolean) => updateAccountDetails('password', value) },
-        { label: "Confirm Password", type: "password", value: accountDetails.confirmPassword, setValue: (value: string | boolean) => updateAccountDetails('confirmPassword', value) }
-    ];
+        { label: "Name", type: "text", value: accountDetails.name, setValue: (value: string) => updateAccountDetails('name', value) },
+        { label: "Email", type: "email", value: accountDetails.email, setValue: (value: string) => updateAccountDetails('email', value) },
+        { label: "Password", type: "password", value: accountDetails.password, setValue: (value: string) => updateAccountDetails('password', value) },
+        { label: "Confirm Password", type: "password", value: accountDetails.confirmPassword, setValue: (value: string) => updateAccountDetails('confirmPassword', value) }
+    ]
 
     return (
         <section className="bg-gray-900 p-5">
@@ -66,15 +61,16 @@ function CreateAccountPage() {
                             </div>
                             <TermsCheckbox
                                 checked={accountDetails.termsAccepted}
-                                onChange={(value: string | boolean) => updateAccountDetails('termsAccepted', value)}
+                                onChange={(value: boolean) => updateAccountDetails('termsAccepted', value)}
                             />
-                            <CreateAccountButton onClick={onCreateAccount} />
+                            <CreateAccountButton onClick={createAccount} />
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     )
-} 
+}
 
 export default CreateAccountPage
+
