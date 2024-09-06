@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "Veiga-SonarCloud",
+        "projectKey": "rodriveiga01_restaurant_os"
+    }
+}
