@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { AccountDetails, TextFieldProps } from "@/app/account/create/accountUtils";
+import { AccountDetails} from "@/app/account/create/accountUtils";
 
 export const useAccountCreation = () => {
   const [accountDetails, setAccountDetails] = useState<AccountDetails>({
@@ -15,6 +15,13 @@ export const useAccountCreation = () => {
 
   const updateAccountDetails = (field: keyof AccountDetails, value: string | boolean) => {
     setAccountDetails(prev => ({ ...prev, [field]: value }));
+  };
+
+  type TextFieldProps = {
+    label: string;
+    type: string;
+    value: string;
+    setValue: (value: string) => void;
   };
 
   const textFields: TextFieldProps[] = [
