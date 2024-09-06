@@ -126,3 +126,35 @@ export function AlertDestructive({ message }: AlertDestructiveProps) {
         </AnimatePresence>
     );
 }
+
+export function VerificationDialog({
+    isOpen,
+    onClose,
+    isLoading,
+    error,
+    successMessage,
+  }: any) {
+    if (!isOpen) return null;
+  
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-gray-800 p-6 rounded-lg">
+          {isLoading ? (
+            <p className="text-gray-300 mb-4">Verifying your account...</p>
+          ) : error ? (
+            <p className="text-red-500 mb-4">{error.message}</p>
+          ) : successMessage ? (
+            <p className="text-green-500 mb-4">{successMessage}</p>
+          ) : (
+            <p className="text-gray-300 mb-4">Please check your email to verify your account.</p>
+          )}
+          <button
+            onClick={onClose}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }

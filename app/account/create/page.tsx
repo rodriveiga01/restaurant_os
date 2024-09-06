@@ -1,9 +1,18 @@
 "use client"
-import { TextField, TermsCheckbox, CreateAccountButton, AlertDestructive } from "./components";
+import { JSX, Key } from "react";
+import { TextField, TermsCheckbox, CreateAccountButton, AlertDestructive, TextFieldProps, VerificationDialog } from "./components";
 import { useAccountCreation } from "@/app/hooks/account/useAccountCreation";
 
 function CreateAccountPage() {
-    const { accountDetails, updateAccountDetails, textFields, createAccount, errorMessage } = useAccountCreation();
+    const { accountDetails, updateAccountDetails,
+        textFields, createAccount, errorMessage, showVerificationDialog, setShowVerificationDialog } = useAccountCreation();
+    const handleShowVerificationDialog = () => {
+        setShowVerificationDialog(true);
+    };
+
+    const handleCloseVerificationDialog = () => {
+        setShowVerificationDialog(false);
+    };
 
     return (
         <section className="bg-gray-900 p-5">
@@ -15,7 +24,7 @@ function CreateAccountPage() {
                             Create an account
                         </h1>
                         <div className="space-y-4 md:space-y-6">
-                            {textFields.map((field, index) => (
+                            {textFields.map((field: { label: string; name: string; type: string; } & TextFieldProps, index: Key | null | undefined) => (
                                 <TextField key={index} {...field} />
                             ))}
                             <div>
@@ -30,6 +39,12 @@ function CreateAccountPage() {
                     </div>
                 </div>
             </div>
+            {showVerificationDialog && (
+                <VerificationDialog
+                    isOpen={showVerificationDialog}
+                    onClose={handleCloseVerificationDialog}
+                />
+            )}
         </section>
     )
 }
