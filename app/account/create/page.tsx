@@ -1,14 +1,10 @@
 "use client"
-import { JSX, Key } from "react";
 import { TextField, TermsCheckbox, CreateAccountButton, AlertDestructive, TextFieldProps, VerificationDialog } from "./components";
 import { useAccountCreation } from "@/app/hooks/account/useAccountCreation";
-
+import { v4 as uuidv4 } from 'uuid';
 function CreateAccountPage() {
     const { accountDetails, updateAccountDetails,
         textFields, createAccount, errorMessage, showVerificationDialog, setShowVerificationDialog } = useAccountCreation();
-    const handleShowVerificationDialog = () => {
-        setShowVerificationDialog(true);
-    };
 
     const handleCloseVerificationDialog = () => {
         setShowVerificationDialog(false);
@@ -24,8 +20,8 @@ function CreateAccountPage() {
                             Create an account
                         </h1>
                         <div className="space-y-4 md:space-y-6">
-                            {textFields.map((field: { label: string; name: string; type: string; } & TextFieldProps, index: Key | null | undefined) => (
-                                <TextField key={index} {...field} />
+                            {textFields.map((field: { label: string; name: string; type: string; } & TextFieldProps) => (
+                                <TextField key={uuidv4()} {...field} />
                             ))}
                             <div>
                                 <label htmlFor="password" className="block mb-2 text-sm text-gray-400">At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character</label>

@@ -10,7 +10,7 @@ export interface TextFieldProps {
     setValue: (value: string) => void;
 }
 
-export function TextField({ label, type, value, setValue }: TextFieldProps) {
+export function TextField({ label, type, value, setValue }: Readonly<TextFieldProps>) {
     return (
         <div>
             <label htmlFor={label} className="block mb-2 text-sm font-medium text-white">{label}</label>
@@ -32,7 +32,7 @@ interface TermsCheckboxProps {
     onChange: (value: boolean) => void;
 }
 
-export function TermsCheckbox({ checked, onChange }: TermsCheckboxProps) {
+export function TermsCheckbox({ checked, onChange }: Readonly<TermsCheckboxProps>) {
     return (
         <div className="flex items-start">
             <div className="flex items-center h-5">
@@ -58,7 +58,7 @@ interface CreateAccountButtonProps {
     onClick: () => void;
 }
 
-export function CreateAccountButton({ onClick }: CreateAccountButtonProps) {
+export function CreateAccountButton({ onClick }: Readonly<CreateAccountButtonProps>) {
     return (
         <button
             type="submit"
@@ -74,7 +74,7 @@ interface AlertDestructiveProps {
     message: string;
 }
 
-export function AlertDestructive({ message }: AlertDestructiveProps) {
+export function AlertDestructive({ message }: Readonly<AlertDestructiveProps>) {
     const [progress, setProgress] = useState(100);
 
     useEffect(() => {
@@ -133,28 +133,32 @@ export function VerificationDialog({
     isLoading,
     error,
     successMessage,
-  }: any) {
+}: any) {
     if (!isOpen) return null;
-  
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-gray-800 p-6 rounded-lg">
-          {isLoading ? (
-            <p className="text-gray-300 mb-4">Verifying your account...</p>
-          ) : error ? (
-            <p className="text-red-500 mb-4">{error.message}</p>
-          ) : successMessage ? (
-            <p className="text-green-500 mb-4">{successMessage}</p>
-          ) : (
-            <p className="text-gray-300 mb-4">Please check your email to verify your account.</p>
-          )}
-          <button
-            onClick={onClose}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Close
-          </button>
-        </div>
-      </div>
+    
+    const errorMessage = error ? (
+        <p className="text-red-500 mb-4">{error.message}</p>
+    ) : null;
+    
+    const successMessageText = successMessage ? (
+        <p className="text-green-500 mb-4">{successMessage}</p>
+    ) : (
+        <p className="text-gray-300 mb-4">Please check your email to verify your account.</p>
     );
-  }
+    
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-gray-800 p-6 rounded-lg">
+                {isLoading ? (
+                    <p className="text-gray-300 mb-4">Verifying your account...</p>
+                ) : errorMessage || successMessageText}
+                <button
+                    onClick={onClose}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    );
+}

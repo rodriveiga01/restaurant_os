@@ -79,8 +79,11 @@ export const useAccountCreation = () => {
 
   const createAccount = async () => {
     try {
-      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-      const { data, error } = await supabase.auth.signUp({
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { error } = await supabase.auth.signUp({
         email: accountDetails.email,
         password: accountDetails.password,
         options: {
